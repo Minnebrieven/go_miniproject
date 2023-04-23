@@ -10,7 +10,7 @@ type InstructorService interface {
 	GetAllInstructorsService() ([]models.Instructor, error)
 	GetInstructorService(instructorData models.Instructor) (models.Instructor, error)
 	CreateInstructorService(instructorData models.Instructor) error
-	EditInstructorService(instructorID int, editedData models.Instructor) (models.Instructor, error)
+	EditInstructorService(instructorID int, modifiedInstructorData models.Instructor) (models.Instructor, error)
 	DeleteInstructorService(instructorID int) error
 }
 
@@ -36,13 +36,12 @@ func (us *instructorService) GetInstructorService(instructorData models.Instruct
 }
 
 func (us *instructorService) CreateInstructorService(instructorData models.Instructor) error {
-	if err := us.instructorRepository.CreateInstructor(instructorData); err != nil {
-		return err
-	}
-	return nil
+	//CreateInstructor will return nil if there's no error
+	err := us.instructorRepository.CreateInstructor(instructorData)
+	return err
 }
 
-func (us *instructorService) EditInstructorService(instructorID int, editedData models.Instructor) (models.Instructor, error) {
+func (us *instructorService) EditInstructorService(instructorID int, modifiedInstructorData models.Instructor) (models.Instructor, error) {
 	//find record first if not exists return error
 	instructor := models.Instructor{ID: uint(instructorID)}
 	instructor, err := us.instructorRepository.GetInstructor(instructor)
@@ -55,7 +54,7 @@ func (us *instructorService) EditInstructorService(instructorID int, editedData 
 	instructorVal := reflect.ValueOf(instructorPointer).Elem()
 	instructorType := instructorVal.Type()
 
-	editVal := reflect.ValueOf(editedData)
+	editVal := reflect.ValueOf(modifiedInstructorData)
 
 	for i := 0; i < instructorVal.NumField(); i++ {
 		//skip ID field to be edited
@@ -63,7 +62,7 @@ func (us *instructorService) EditInstructorService(instructorID int, editedData 
 			continue
 		}
 
-		//edit every field in instructor with editedData
+		//edit every field in instructor with modifiedInstructorData
 		instructorVal.Field(i).Set(editVal.Field(i))
 	}
 
@@ -77,9 +76,6 @@ func (us *instructorService) EditInstructorService(instructorID int, editedData 
 
 func (us *instructorService) DeleteInstructorService(instructorID int) error {
 	instructor := models.Instructor{ID: uint(instructorID)}
-	if err := us.instructorRepository.DeleteInstructor(instructor); err != nil {
-		return err
-	}
-
-	return nil
+	err := us.instructorRepository.DeleteInstructor(instructor)
+	return err
 }

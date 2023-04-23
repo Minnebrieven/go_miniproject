@@ -1,17 +1,26 @@
 package services
 
 import (
+	"reflect"
 	"swim-class/middlewares"
 	"swim-class/models"
 	"swim-class/repositories"
 )
 
-type UserService interface {
-}
+type (
+	UserService interface {
+		GetAllUsersService() ([]models.User, error)
+		GetUserService(userData models.User) (models.User, error)
+		CreateUserService(dataUser models.User) error
+		EditUserService(userID int, editedData models.User) (models.User, error)
+		DeleteUserService(userID int) error
+		Login(userData models.User) (string, error)
+	}
 
-type userService struct {
-	userRepository repositories.UserRepository
-}
+	userService struct {
+		userRepository repositories.UserRepository
+	}
+)
 
 func NewUserService(userRepo repositories.UserRepository) *userService {
 	return &userService{userRepository: userRepo}
@@ -37,19 +46,46 @@ func (us *userService) CreateUserService(dataUser models.User) error {
 	return nil
 }
 
-func (us *userService) EditUserService(userData models.User) (*models.User, error) {
+func (us *userService) EditUserService(userID int, editedData models.User) (models.User, error) {
 	//find record first if not exists return error
-	_, err := us.userRepository.GetUser(userData)
+	user := models.User{ID: uint(userID)}
+	user, err := us.userRepository.GetUser(user)
 	if err != nil {
-		return nil, err
+		return user, err
 	}
 
-	result, err := us.userRepository.UpdateUser(userData)
+	//replace exist data with new one
+	var userPointer *models.User = &user
+	userVal := reflect.ValueOf(userPointer)
+	userType := userVal.Type()
+
+	editVal := reflect.ValueOf(editedData)
+
+	for i := 0; i < userVal.NumField(); i++ {
+		//skip ID field to be edited
+		if userType.Field(i).Name == "ID" {
+			continue
+		}
+
+		//edit every field in user with editedData
+		userVal.Field(i).Set(editVal.Field(i))
+	}
+
+	result, err := us.userRepository.UpdateUser(user)
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 	return result, nil
 
+}
+
+func (us *userService) DeleteUserService(userID int) error {
+	user := models.User{ID: uint(userID)}
+	if err := us.userRepository.DeleteUser(user); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (us *userService) Login(userData models.User) (string, error) {

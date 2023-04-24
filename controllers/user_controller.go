@@ -123,3 +123,24 @@ func (u *userController) DeleteUser(c echo.Context) error {
 		"id":     userID,
 	})
 }
+
+func (u *userController) Login(c echo.Context) error {
+	user := models.User{}
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": err.Error(),
+		})
+	}
+
+	token, err := u.userService.Login(user)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"status": "success",
+		"token":  token,
+	})
+}

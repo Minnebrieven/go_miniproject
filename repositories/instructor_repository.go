@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"swim-class/models"
 
 	"gorm.io/gorm"
@@ -36,6 +37,9 @@ func (ir *instructorRepository) GetAllInstructors() ([]models.Instructor, error)
 
 func (ir *instructorRepository) GetInstructor(instructor models.Instructor) (models.Instructor, error) {
 	err := ir.db.First(&instructor).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return instructor, errors.New("record not found")
+	}
 	return instructor, err
 }
 

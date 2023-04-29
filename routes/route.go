@@ -36,10 +36,10 @@ func NewRoute(db *gorm.DB) *echo.Echo {
 	//------------------NOT AUTHENTICATED--------------------------------
 	//USERS ROUTES
 	e.POST("/login", userController.Login)
-	e.POST("/users", userController.CreateUser)
+	e.POST("/register", userController.CreateUser)
 
 	//INSTRUCTORS ROUTES
-	e.GET("/instructors", instructorController.GetAllInstructors)
+	e.GET("/instructors/all", instructorController.GetAllInstructors)
 	e.GET("/instructors/:id", instructorController.GetInstructorByID)
 
 	//------------------AUTHENTICATED------------------------------------
@@ -48,6 +48,8 @@ func NewRoute(db *gorm.DB) *echo.Echo {
 	usersJWT.Use(mid.JWT([]byte(constants.SECRET_JWT)))
 	usersJWT.GET("", userController.GetAllUsers)
 	usersJWT.GET("/:id", userController.GetUserByID)
+	usersJWT.PUT("/:id", userController.EditUser)
+	usersJWT.DELETE("/:id", userController.DeleteUser)
 
 	//INSTRUCTORS ROUTES
 	instructorsJWT := e.Group("/instructors")

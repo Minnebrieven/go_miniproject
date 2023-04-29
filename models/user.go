@@ -1,14 +1,16 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
-	ID           uint
-	Name         string
-	Email        string
-	Password     string
-	Birthday     time.Time
-	Appointments []Appointment
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID                uint      `json:"id"`
+	Name              string    `json:"name"`
+	Email             string    `json:"email"`
+	Password          string    `json:"password"`
+	Birthday          time.Time `json:"birthday"`
+	ClassParticipants []ClassParticipant
+	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
 }

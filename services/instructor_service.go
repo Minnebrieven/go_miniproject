@@ -2,15 +2,17 @@ package services
 
 import (
 	"reflect"
+	"swim-class/dto"
+	"swim-class/mapper"
 	"swim-class/models"
 	"swim-class/repositories"
 )
 
 type InstructorService interface {
-	GetAllInstructorsService() ([]models.Instructor, error)
-	GetInstructorService(instructorData models.Instructor) (models.Instructor, error)
-	CreateInstructorService(instructorData models.Instructor) error
-	EditInstructorService(instructorID int, modifiedInstructorData models.Instructor) (models.Instructor, error)
+	GetAllInstructorsService() ([]dto.InstructorDTO, error)
+	GetInstructorService(instructorData dto.InstructorDTO) (dto.InstructorDTO, error)
+	CreateInstructorService(instructorData dto.InstructorDTO) error
+	EditInstructorService(instructorID int, modifiedInstructorData dto.InstructorDTO) (dto.InstructorDTO, error)
 	DeleteInstructorService(instructorID int) error
 }
 
@@ -22,55 +24,89 @@ func NewInstructorService(instructorRepo repositories.InstructorRepository) *ins
 	return &instructorService{instructorRepository: instructorRepo}
 }
 
-func (us *instructorService) GetAllInstructorsService() ([]models.Instructor, error) {
+func (us *instructorService) GetAllInstructorsService() ([]dto.InstructorDTO, error) {
 	instructor, err := us.instructorRepository.GetAllInstructors()
 	if err != nil {
 		return nil, err
 	}
-	return instructor, nil
+
+	instructorDTO, err := mapper.ToInstructorDTOList(instructor)
+	if err != nil {
+		return nil, err
+	}
+	return instructorDTO, nil
 }
 
-func (us *instructorService) GetInstructorService(instructorData models.Instructor) (models.Instructor, error) {
-	instructor, err := us.instructorRepository.GetInstructor(instructorData)
-	return instructor, err
+func (us *instructorService) GetInstructorService(instructorData dto.InstructorDTO) (dto.InstructorDTO, error) {
+	instructorModel, err := mapper.ToInstructorModel(instructorData)
+	if err != nil {
+		return instructorData, err
+	}
+
+	instructorModel, err = us.instructorRepository.GetInstructor(instructorModel)
+	if err != nil {
+		return instructorData, err
+	}
+
+	instructorData, err = mapper.ToInstructorDTO(instructorModel)
+	return instructorData, err
 }
 
-func (us *instructorService) CreateInstructorService(instructorData models.Instructor) error {
-	//CreateInstructor will return nil if there's no error
-	err := us.instructorRepository.CreateInstructor(instructorData)
+func (us *instructorService) CreateInstructorService(instructorData dto.InstructorDTO) error {
+	instructorModel, err := mapper.ToInstructorModel(instructorData)
+	if err != nil {
+		return err
+	}
+
+	err = us.instructorRepository.CreateInstructor(instructorModel)
 	return err
 }
 
-func (us *instructorService) EditInstructorService(instructorID int, modifiedInstructorData models.Instructor) (models.Instructor, error) {
+func (us *instructorService) EditInstructorService(instructorID int, modifiedInstructorData dto.InstructorDTO) (dto.InstructorDTO, error) {
 	//find record first if not exists return error
-	instructor := models.Instructor{ID: uint(instructorID)}
-	instructor, err := us.instructorRepository.GetInstructor(instructor)
+	instructorModel := models.Instructor{ID: uint(instructorID)}
+	instructorModel, err := us.instructorRepository.GetInstructor(instructorModel)
 	if err != nil {
-		return instructor, err
+		return modifiedInstructorData, err
 	}
 
-	//replace current data with new one
-	var instructorPointer *models.Instructor = &instructor
+	modifiedInstructorModel, err := mapper.ToInstructorModel(modifiedInstructorData)
+	if err != nil {
+		return modifiedInstructorData, err
+	}
+
+	//replace exist data with new one
+	var instructorPointer *models.Instructor = &instructorModel
 	instructorVal := reflect.ValueOf(instructorPointer).Elem()
 	instructorType := instructorVal.Type()
 
-	editVal := reflect.ValueOf(modifiedInstructorData)
+	editVal := reflect.ValueOf(modifiedInstructorModel)
 
 	for i := 0; i < instructorVal.NumField(); i++ {
-		//skip ID field to be edited
-		if instructorType.Field(i).Name == "ID" {
+		//skip ID, CreatedAt, UpdatedAt field to be edited
+		switch instructorType.Field(i).Name {
+		case "ID":
+			continue
+		case "CreatedAt":
+			continue
+		case "UpdatedAt":
 			continue
 		}
 
-		//edit every field in instructor with modifiedInstructorData
-		instructorVal.Field(i).Set(editVal.Field(i))
+		editField := editVal.Field(i)
+		isSet := editField.IsValid() && !editField.IsZero()
+		if isSet {
+			instructorVal.Field(i).Set(editVal.Field(i))
+		}
 	}
 
-	result, err := us.instructorRepository.UpdateInstuctor(instructor)
+	result, err := us.instructorRepository.UpdateInstuctor(instructorModel)
 	if err != nil {
-		return result, err
+		return modifiedInstructorData, err
 	}
-	return result, nil
+
+	modifiedInstructorData, err = mapper.ToInstructorDTO(result)
+	return modifiedInstructorData, err
 
 }
 

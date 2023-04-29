@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
-	"swim-class/models"
+	"swim-class/dto"
 	"swim-class/services"
 
 	"github.com/labstack/echo/v4"
@@ -43,13 +43,19 @@ func (u *userController) GetUserByID(c echo.Context) error {
 		})
 	}
 
-	var user = models.User{ID: uint(userID)}
+	var user = dto.UserDTO{ID: userID}
 	user, err = u.userService.GetUserService(user)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
-		})
-	}
+		if err.Error() == "record not found" {
+			return c.JSON(http.StatusOK, echo.Map{
+				"error": err.Error(),
+			})
+		} else {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"error": err,
+			})
+		}
+	}		
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"status": "success",
@@ -58,20 +64,24 @@ func (u *userController) GetUserByID(c echo.Context) error {
 }
 
 func (u *userController) CreateUser(c echo.Context) error {
-	user := models.User{}
-	if err := c.Bind(&user); err != nil {
+	userDTO := dto.UserDTO{}
+
+	if err := c.Bind(&userDTO); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
 		})
 	}
-	if err := u.userService.CreateUserService(user); err != nil {
+
+	userDTO, err := u.userService.CreateUserService(userDTO)
+	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": err,
 		})
 	}
+
 	return c.JSON(http.StatusOK, echo.Map{
 		"status": "success",
-		"data":   user,
+		"data":   userDTO,
 	})
 }
 
@@ -83,7 +93,7 @@ func (u *userController) EditUser(c echo.Context) error {
 		})
 	}
 
-	modifiedUserData := models.User{}
+	modifiedUserData := dto.UserDTO{}
 	if err := c.Bind(&modifiedUserData); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
@@ -125,7 +135,7 @@ func (u *userController) DeleteUser(c echo.Context) error {
 }
 
 func (u *userController) Login(c echo.Context) error {
-	user := models.User{}
+	user := dto.UserDTO{}
 	if err := c.Bind(&user); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),

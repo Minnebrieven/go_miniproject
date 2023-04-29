@@ -44,6 +44,7 @@ func MigrateDB(db *gorm.DB) error {
 		models.User{},
 		models.Class{},
 		models.Instructor{},
-		models.Appointment{},
+		models.ClassCategory{},
+		models.ClassParticipant{},
 	)
 }

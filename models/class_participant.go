@@ -2,11 +2,10 @@ package models
 
 import "time"
 
-type Instructor struct {
+type ClassParticipant struct {
 	ID        uint
-	Name      string
-	Phone     int
-	Classes   []Class
+	ClassID   uint
+	UserID    uint
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

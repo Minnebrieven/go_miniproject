@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
-	"swim-class/models"
+	"swim-class/dto"
 	"swim-class/services"
 
 	"github.com/labstack/echo/v4"
@@ -43,12 +43,18 @@ func (i *instructorController) GetInstructorByID(c echo.Context) error {
 		})
 	}
 
-	var instructor = models.Instructor{ID: uint(instructorID)}
+	var instructor = dto.InstructorDTO{ID: instructorID}
 	instructor, err = i.instructorService.GetInstructorService(instructor)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
-		})
+		if err.Error() == "record not found" {
+			return c.JSON(http.StatusOK, echo.Map{
+				"error": err.Error(),
+			})
+		} else {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"error": err.Error(),
+			})
+		}
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -58,7 +64,7 @@ func (i *instructorController) GetInstructorByID(c echo.Context) error {
 }
 
 func (i *instructorController) CreateInstructor(c echo.Context) error {
-	instructor := models.Instructor{}
+	instructor := dto.InstructorDTO{}
 	if err := c.Bind(&instructor); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
@@ -83,7 +89,7 @@ func (i *instructorController) EditInstrutor(c echo.Context) error {
 		})
 	}
 
-	modifiedInstructorData := models.Instructor{}
+	modifiedInstructorData := dto.InstructorDTO{}
 	if err := c.Bind(&modifiedInstructorData); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),

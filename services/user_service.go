@@ -2,6 +2,8 @@ package services
 
 import (
 	"reflect"
+	"swim-class/dto"
+	"swim-class/mapper"
 	"swim-class/middlewares"
 	"swim-class/models"
 	"swim-class/repositories"
@@ -9,12 +11,12 @@ import (
 
 type (
 	UserService interface {
-		GetAllUsersService() ([]models.User, error)
-		GetUserService(userData models.User) (models.User, error)
-		CreateUserService(dataUser models.User) error
-		EditUserService(userID int, modifiedUserData models.User) (models.User, error)
+		GetAllUsersService() ([]dto.UserDTO, error)
+		GetUserService(userDTO dto.UserDTO) (dto.UserDTO, error)
+		CreateUserService(userDTO dto.UserDTO) (dto.UserDTO, error)
+		EditUserService(userID int, modifiedUserData dto.UserDTO) (dto.UserDTO, error)
 		DeleteUserService(userID int) error
-		Login(userData models.User) (string, error)
+		Login(userDTO dto.UserDTO) (string, error)
 	}
 
 	userService struct {
@@ -26,55 +28,102 @@ func NewUserService(userRepo repositories.UserRepository) *userService {
 	return &userService{userRepository: userRepo}
 }
 
-func (us *userService) GetAllUsersService() ([]models.User, error) {
+func (us *userService) GetAllUsersService() ([]dto.UserDTO, error) {
 	user, err := us.userRepository.GetAllUsers()
 	if err != nil {
 		return nil, err
 	}
-	return user, nil
-}
 
-func (us *userService) GetUserService(userData models.User) (models.User, error) {
-	user, err := us.userRepository.GetUser(userData)
-	return user, err
-}
-
-func (us *userService) CreateUserService(dataUser models.User) error {
-	//CreateUser will return nil if there's no error
-	err := us.userRepository.CreateUser(dataUser)
-	return err
-}
-
-func (us *userService) EditUserService(userID int, modifiedUserData models.User) (models.User, error) {
-	//find record first if not exists return error
-	user := models.User{ID: uint(userID)}
-	user, err := us.userRepository.GetUser(user)
+	userDTOList, err := mapper.ToUserDTOList(user)
 	if err != nil {
-		return user, err
+		return nil, err
+	}
+	return userDTOList, nil
+}
+
+func (us *userService) GetUserService(userDTO dto.UserDTO) (dto.UserDTO, error) {
+	userModel, err := mapper.ToUserModel(userDTO)
+	if err != nil {
+		return userDTO, err
+	}
+
+	result, err := us.userRepository.GetUser(userModel)
+	if err != nil {
+		return userDTO, err
+	}
+
+	userDTO, err = mapper.ToUserDTO(result)
+	if err != nil {
+		return userDTO, err
+	}
+	return userDTO, nil
+}
+
+func (us *userService) CreateUserService(userDTO dto.UserDTO) (dto.UserDTO, error) {
+	//convert DTO to model
+	userModel, err := mapper.ToUserModel(userDTO)
+	if err != nil {
+		return userDTO, err
+	}
+
+	userModel, err = us.userRepository.CreateUser(userModel)
+	if err != nil {
+		return userDTO, err
+	}
+
+	//
+	userDTO, err = mapper.ToUserDTO(userModel)
+	if err != nil {
+		return userDTO, err
+	}
+	return userDTO, nil
+}
+
+func (us *userService) EditUserService(userID int, modifiedUserData dto.UserDTO) (dto.UserDTO, error) {
+	//find record first if not exists return error
+	userModel := models.User{ID: uint(userID)}
+	userModel, err := us.userRepository.GetUser(userModel)
+	if err != nil {
+		return modifiedUserData, err
+	}
+
+	modifiedUserModel, err := mapper.ToUserModel(modifiedUserData)
+	if err != nil {
+		return modifiedUserData, err
 	}
 
 	//replace exist data with new one
-	var userPointer *models.User = &user
-	userVal := reflect.ValueOf(userPointer)
+	var userPointer *models.User = &userModel
+	userVal := reflect.ValueOf(userPointer).Elem()
 	userType := userVal.Type()
 
-	editVal := reflect.ValueOf(modifiedUserData)
+	editVal := reflect.ValueOf(modifiedUserModel)
 
 	for i := 0; i < userVal.NumField(); i++ {
-		//skip ID field to be edited
-		if userType.Field(i).Name == "ID" {
+		//skip ID, CreatedAt, UpdatedAt field to be edited
+		switch userType.Field(i).Name {
+		case "ID":
+			continue
+		case "CreatedAt":
+			continue
+		case "UpdatedAt":
 			continue
 		}
 
-		//edit every field in user with modifiedUserData
-		userVal.Field(i).Set(editVal.Field(i))
+		editField := editVal.Field(i)
+		isSet := editField.IsValid() && !editField.IsZero()
+		if isSet {
+			userVal.Field(i).Set(editVal.Field(i))
+		}
 	}
 
-	result, err := us.userRepository.UpdateUser(user)
+	result, err := us.userRepository.UpdateUser(userModel)
 	if err != nil {
-		return result, err
+		return modifiedUserData, err
 	}
-	return result, nil
+
+	modifiedUserData, err = mapper.ToUserDTO(result)
+	return modifiedUserData, err
 
 }
 
@@ -84,7 +133,12 @@ func (us *userService) DeleteUserService(userID int) error {
 	return err
 }
 
-func (us *userService) Login(userData models.User) (string, error) {
+func (us *userService) Login(userDTO dto.UserDTO) (string, error) {
+	userData, err := mapper.ToUserModel(userDTO)
+	if err != nil {
+		return "", err
+	}
+
 	user, err := us.userRepository.Login(userData)
 	if err != nil {
 		return "", err

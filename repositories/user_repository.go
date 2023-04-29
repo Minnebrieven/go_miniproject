@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"swim-class/models"
 
 	"gorm.io/gorm"
@@ -9,7 +10,7 @@ import (
 type UserRepository interface {
 	GetAllUsers() ([]models.User, error)
 	GetUser(models.User) (models.User, error)
-	CreateUser(models.User) error
+	CreateUser(userData models.User) (models.User, error)
 	UpdateUser(models.User) (models.User, error)
 	DeleteUser(models.User) error
 	Login(models.User) (models.User, error)
@@ -35,11 +36,15 @@ func (ur *userRepository) GetAllUsers() ([]models.User, error) {
 
 func (ur *userRepository) GetUser(user models.User) (models.User, error) {
 	err := ur.db.First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound){
+		return user, errors.New("record not found")
+	}
 	return user, err
 }
 
-func (ur *userRepository) CreateUser(userData models.User) error {
-	return ur.db.Create(&userData).Error
+func (ur *userRepository) CreateUser(userData models.User) (models.User, error) {
+	err := ur.db.Create(&userData).Error
+	return userData, err
 }
 
 func (ur *userRepository) UpdateUser(userData models.User) (models.User, error) {

@@ -11,7 +11,7 @@ import (
 type InstructorService interface {
 	GetAllInstructorsService() ([]dto.InstructorDTO, error)
 	GetInstructorService(instructorData dto.InstructorDTO) (dto.InstructorDTO, error)
-	CreateInstructorService(instructorData dto.InstructorDTO) error
+	CreateInstructorService(instructorData dto.InstructorDTO) (dto.InstructorDTO, error)
 	EditInstructorService(instructorID int, modifiedInstructorData dto.InstructorDTO) (dto.InstructorDTO, error)
 	DeleteInstructorService(instructorID int) error
 }
@@ -52,14 +52,19 @@ func (us *instructorService) GetInstructorService(instructorData dto.InstructorD
 	return instructorData, err
 }
 
-func (us *instructorService) CreateInstructorService(instructorData dto.InstructorDTO) error {
+func (us *instructorService) CreateInstructorService(instructorData dto.InstructorDTO) (dto.InstructorDTO, error) {
 	instructorModel, err := mapper.ToInstructorModel(instructorData)
 	if err != nil {
-		return err
+		return instructorData, err
 	}
 
-	err = us.instructorRepository.CreateInstructor(instructorModel)
-	return err
+	instructorModel, err = us.instructorRepository.CreateInstructor(instructorModel)
+	if err != nil {
+		return instructorData, err
+	}
+
+	instructorData, err = mapper.ToInstructorDTO(instructorModel)
+	return instructorData, err
 }
 
 func (us *instructorService) EditInstructorService(instructorID int, modifiedInstructorData dto.InstructorDTO) (dto.InstructorDTO, error) {

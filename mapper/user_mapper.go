@@ -37,7 +37,7 @@ func ToUserModel(dto dto.UserDTO) (models.User, error) {
 	userModel.Name = dto.Name
 	userModel.Email = dto.Email
 	userModel.Password = dto.Password
-	
+
 	if dto.Birthday != "" {
 		// parse or convert birthday string to time
 		dateFormat := "2006-01-02"
@@ -63,7 +63,7 @@ func ToUserDTO(userModel models.User) (dto.UserDTO, error) {
 	userDTO.ID = int(userModel.ID)
 	userDTO.Name = userModel.Name
 	userDTO.Email = userModel.Email
-	userDTO.Password = userModel.Password
+	userDTO.Password = "********"
 	userDTO.Birthday = userModel.Birthday.Format(dateFormat)
 	userDTO.CreatedAt = userModel.CreatedAt.Format(datetimeFormat)
 	userDTO.UpdatedAt = userModel.UpdatedAt.Format(datetimeFormat)

@@ -16,7 +16,7 @@ type (
 		CreateUserService(userDTO dto.UserDTO) (dto.UserDTO, error)
 		EditUserService(userID int, modifiedUserData dto.UserDTO) (dto.UserDTO, error)
 		DeleteUserService(userID int) error
-		Login(userDTO dto.UserDTO) (string, error)
+		Login(userDTO dto.UserDTO) (dto.UserDTO, string, error)
 	}
 
 	userService struct {
@@ -133,20 +133,25 @@ func (us *userService) DeleteUserService(userID int) error {
 	return err
 }
 
-func (us *userService) Login(userDTO dto.UserDTO) (string, error) {
+func (us *userService) Login(userDTO dto.UserDTO) (dto.UserDTO, string, error) {
 	userData, err := mapper.ToUserModel(userDTO)
 	if err != nil {
-		return "", err
+		return userDTO, "", err
 	}
 
 	user, err := us.userRepository.Login(userData)
 	if err != nil {
-		return "", err
+		return userDTO, "", err
+	}
+
+	userDTO, err = mapper.ToUserDTO(user)
+	if err != nil {
+		return userDTO, "", err
 	}
 
 	token, err := middlewares.CreateToken(int(user.ID), user.Email)
 	if err != nil {
-		return "", err
+		return userDTO, "", err
 	}
-	return token, nil
+	return userDTO, token, nil
 }

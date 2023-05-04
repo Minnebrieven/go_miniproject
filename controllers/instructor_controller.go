@@ -25,7 +25,7 @@ func (i *instructorController) GetAllInstructors(c echo.Context) error {
 	instructors, err := i.instructorService.GetAllInstructorsService()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 
@@ -65,14 +65,15 @@ func (i *instructorController) GetInstructorByID(c echo.Context) error {
 
 func (i *instructorController) CreateInstructor(c echo.Context) error {
 	instructor := dto.InstructorDTO{}
-	if err := c.Bind(&instructor); err != nil {
+	var err error
+	if err = c.Bind(&instructor); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
 		})
 	}
-	if err := i.instructorService.CreateInstructorService(instructor); err != nil {
+	if instructor, err = i.instructorService.CreateInstructorService(instructor); err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 	return c.JSON(http.StatusOK, echo.Map{
@@ -98,9 +99,15 @@ func (i *instructorController) EditInstrutor(c echo.Context) error {
 
 	instructor, err := i.instructorService.EditInstructorService(instructorID, modifiedInstructorData)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
-		})
+		if err.Error() == "record not found" {
+			return c.JSON(http.StatusOK, echo.Map{
+				"error": err.Error(),
+			})
+		} else {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"error": err.Error(),
+			})
+		}
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -118,10 +125,17 @@ func (i *instructorController) DeleteInstructor(c echo.Context) error {
 		})
 	}
 
-	if err = i.instructorService.DeleteInstructorService(instructorID); err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
-		})
+	err = i.instructorService.DeleteInstructorService(instructorID)
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.JSON(http.StatusOK, echo.Map{
+				"error": err.Error(),
+			})
+		} else {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"error": err.Error(),
+			})
+		}
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{

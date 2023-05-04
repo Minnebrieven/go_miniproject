@@ -11,7 +11,7 @@ type (
 	InstructorRepository interface {
 		GetAllInstructors() ([]models.Instructor, error)
 		GetInstructor(models.Instructor) (models.Instructor, error)
-		CreateInstructor(models.Instructor) error
+		CreateInstructor(models.Instructor) (models.Instructor, error)
 		UpdateInstuctor(models.Instructor) (models.Instructor, error)
 		DeleteInstructor(models.Instructor) error
 	}
@@ -43,8 +43,9 @@ func (ir *instructorRepository) GetInstructor(instructor models.Instructor) (mod
 	return instructor, err
 }
 
-func (ir *instructorRepository) CreateInstructor(instructorData models.Instructor) error {
-	return ir.db.Create(&instructorData).Error
+func (ir *instructorRepository) CreateInstructor(instructorData models.Instructor) (models.Instructor, error) {
+	err := ir.db.Create(&instructorData).Error
+	return instructorData, err
 }
 
 func (ir *instructorRepository) UpdateInstuctor(instructorData models.Instructor) (models.Instructor, error) {
@@ -53,6 +54,10 @@ func (ir *instructorRepository) UpdateInstuctor(instructorData models.Instructor
 }
 
 func (ir *instructorRepository) DeleteInstructor(instructorData models.Instructor) error {
-	err := ir.db.Delete(&instructorData).Error
+	err := ir.db.First(&instructorData).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("record not found")
+	}
+	err = ir.db.Delete(&instructorData).Error
 	return err
 }

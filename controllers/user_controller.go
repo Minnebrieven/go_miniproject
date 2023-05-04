@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"swim-class/dto"
+	"swim-class/middlewares"
 	"swim-class/services"
 
 	"github.com/labstack/echo/v4"
@@ -25,7 +26,7 @@ func (u *userController) GetAllUsers(c echo.Context) error {
 	users, err := u.userService.GetAllUsersService()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 
@@ -52,10 +53,10 @@ func (u *userController) GetUserByID(c echo.Context) error {
 			})
 		} else {
 			return c.JSON(http.StatusInternalServerError, echo.Map{
-				"error": err,
+				"error": err.Error(),
 			})
 		}
-	}		
+	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"status": "success",
@@ -75,13 +76,21 @@ func (u *userController) CreateUser(c echo.Context) error {
 	userDTO, err := u.userService.CreateUserService(userDTO)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
+			"error": err.Error(),
+		})
+	}
+
+	token, err := middlewares.CreateToken(userDTO.ID, userDTO.Email)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"error": err.Error(),
 		})
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"status": "success",
 		"data":   userDTO,
+		"token":  token,
 	})
 }
 
@@ -102,9 +111,15 @@ func (u *userController) EditUser(c echo.Context) error {
 
 	user, err := u.userService.EditUserService(userID, modifiedUserData)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
-		})
+		if err.Error() == "record not found" {
+			return c.JSON(http.StatusOK, echo.Map{
+				"error": err.Error(),
+			})
+		} else {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"error": err.Error(),
+			})
+		}
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -122,10 +137,17 @@ func (u *userController) DeleteUser(c echo.Context) error {
 		})
 	}
 
-	if err = u.userService.DeleteUserService(userID); err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err,
-		})
+	err = u.userService.DeleteUserService(userID)
+	if err != nil {
+		if err.Error() == "record not found" {
+			return c.JSON(http.StatusOK, echo.Map{
+				"error": err.Error(),
+			})
+		} else {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"error": err.Error(),
+			})
+		}
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -142,7 +164,7 @@ func (u *userController) Login(c echo.Context) error {
 		})
 	}
 
-	token, err := u.userService.Login(user)
+	user, token, err := u.userService.Login(user)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
@@ -151,6 +173,7 @@ func (u *userController) Login(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"status": "success",
+		"data":   user,
 		"token":  token,
 	})
 }

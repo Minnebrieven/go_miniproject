@@ -42,6 +42,9 @@ func NewRoute(db *gorm.DB) *echo.Echo {
 	e.GET("/instructors/all", instructorController.GetAllInstructors)
 	e.GET("/instructors/:id", instructorController.GetInstructorByID)
 
+	//CLASS ROUTES
+	// e.GET("/")
+
 	//------------------AUTHENTICATED------------------------------------
 	//USERS ROUTES
 	usersJWT := e.Group("/users")

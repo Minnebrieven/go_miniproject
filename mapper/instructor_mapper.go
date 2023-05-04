@@ -35,6 +35,7 @@ func ToInstructorModel(dto dto.InstructorDTO) (models.Instructor, error) {
 
 	instructorModel.ID = uint(dto.ID)
 	instructorModel.Name = dto.Name
+	instructorModel.Gender = dto.Gender
 
 	// string to int
 	if dto.Phone != "" {
@@ -60,6 +61,7 @@ func ToInstructorDTO(instructorModel models.Instructor) (dto.InstructorDTO, erro
 
 	instructorDTO.ID = int(instructorModel.ID)
 	instructorDTO.Name = instructorModel.Name
+	instructorDTO.Gender = instructorModel.Gender
 	instructorDTO.Phone = phoneIntToStr
 	instructorDTO.CreatedAt = instructorModel.CreatedAt.Format(datetimeFormat)
 	instructorDTO.UpdatedAt = instructorModel.UpdatedAt.Format(datetimeFormat)

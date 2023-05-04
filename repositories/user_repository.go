@@ -36,7 +36,7 @@ func (ur *userRepository) GetAllUsers() ([]models.User, error) {
 
 func (ur *userRepository) GetUser(user models.User) (models.User, error) {
 	err := ur.db.First(&user).Error
-	if errors.Is(err, gorm.ErrRecordNotFound){
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return user, errors.New("record not found")
 	}
 	return user, err
@@ -53,7 +53,11 @@ func (ur *userRepository) UpdateUser(userData models.User) (models.User, error) 
 }
 
 func (ur *userRepository) DeleteUser(userData models.User) error {
-	err := ur.db.Delete(&userData).Error
+	err := ur.db.First(&userData).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("record not found")
+	}
+	err = ur.db.Delete(&userData).Error
 	return err
 }
 

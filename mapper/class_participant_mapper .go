@@ -35,12 +35,12 @@ func ToClassParticipantModel(dto dto.ClassParticipantDTO) (models.ClassParticipa
 
 	classParticipantModel.ID = uint(dto.ID)
 
-	if dto.ClassID != 0 {
-		classParticipantModel.ClassID = uint(dto.ClassID)
+	if dto.Class.ID != 0 {
+		classParticipantModel.ClassID = uint(dto.Class.ID)
 	}
 
-	if dto.UserID != 0 {
-		classParticipantModel.UserID = uint(dto.UserID)
+	if dto.User.ID != 0 {
+		classParticipantModel.UserID = uint(dto.User.ID)
 	}
 
 	return classParticipantModel, nil
@@ -59,42 +59,38 @@ func ToClassParticipantDTO(classParticipantModel models.ClassParticipant) (dto.C
 
 	classParticipantDTO.ID = int(classParticipantModel.ID)
 
-	classParticipantDTO.ClassID = int(classParticipantModel.ClassID)
 	classParticipantDTO.Class.ID = int(classParticipantModel.Class.ID)
 	classParticipantDTO.Class.Name = classParticipantModel.Class.Name
 
-	classParticipantDTO.Class.ClassCategoryID = int(classParticipantModel.Class.ClassCategoryID)
 	classParticipantDTO.Class.ClassCategory.ID = int(classParticipantModel.Class.ClassCategory.ID)
 	classParticipantDTO.Class.ClassCategory.Name = classParticipantModel.Class.ClassCategory.Name
 	classParticipantDTO.Class.ClassCategory.Description = classParticipantModel.Class.ClassCategory.Description
-	classParticipantDTO.Class.ClassCategory.CreatedAt = classParticipantModel.Class.ClassCategory.Metadata.CreatedAt.Format(datetimeFormat)
-	classParticipantDTO.Class.ClassCategory.UpdatedAt = classParticipantModel.Class.ClassCategory.Metadata.UpdatedAt.Format(datetimeFormat)
+	classParticipantDTO.Class.ClassCategory.Metadata.CreatedAt = classParticipantModel.Class.ClassCategory.Metadata.CreatedAt.Format(datetimeFormat)
+	classParticipantDTO.Class.ClassCategory.Metadata.UpdatedAt = classParticipantModel.Class.ClassCategory.Metadata.UpdatedAt.Format(datetimeFormat)
 
 	classParticipantDTO.Class.Description = classParticipantModel.Class.Description
 	classParticipantDTO.Class.Start = classParticipantModel.Class.Start.Format(datetimeFormat)
 
-	classParticipantDTO.Class.InstructorID = int(classParticipantModel.Class.InstructorID)
 	classParticipantDTO.Class.Instructor.ID = int(classParticipantModel.Class.Instructor.ID)
 	classParticipantDTO.Class.Instructor.Name = classParticipantModel.Class.Instructor.Name
 	classParticipantDTO.Class.Instructor.Gender = classParticipantModel.Class.Instructor.Gender
 	classParticipantDTO.Class.Instructor.Phone = instructorClassPhoneStr
-	classParticipantDTO.Class.Instructor.CreatedAt = classParticipantModel.Class.Instructor.Metadata.CreatedAt.Format(datetimeFormat)
-	classParticipantDTO.Class.Instructor.UpdatedAt = classParticipantModel.Class.Instructor.Metadata.UpdatedAt.Format(datetimeFormat)
+	classParticipantDTO.Class.Instructor.Metadata.CreatedAt = classParticipantModel.Class.Instructor.Metadata.CreatedAt.Format(datetimeFormat)
+	classParticipantDTO.Class.Instructor.Metadata.UpdatedAt = classParticipantModel.Class.Instructor.Metadata.UpdatedAt.Format(datetimeFormat)
 
-	classParticipantDTO.Class.CreatedAt = classParticipantModel.Metadata.CreatedAt.Format(datetimeFormat)
-	classParticipantDTO.Class.UpdatedAt = classParticipantModel.Metadata.UpdatedAt.Format(datetimeFormat)
+	classParticipantDTO.Class.Metadata.CreatedAt = classParticipantModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classParticipantDTO.Class.Metadata.UpdatedAt = classParticipantModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
-	classParticipantDTO.UserID = int(classParticipantModel.UserID)
 	classParticipantDTO.User.ID = int(classParticipantModel.User.ID)
 	classParticipantDTO.User.Name = classParticipantModel.User.Name
 	classParticipantDTO.User.Email = classParticipantModel.User.Email
 	classParticipantDTO.User.Password = "********"
 	classParticipantDTO.User.Birthday = classParticipantModel.User.Birthday.Format(dateFormat)
-	classParticipantDTO.User.CreatedAt = classParticipantModel.Metadata.CreatedAt.Format(datetimeFormat)
-	classParticipantDTO.User.UpdatedAt = classParticipantModel.Metadata.UpdatedAt.Format(datetimeFormat)
+	classParticipantDTO.User.Metadata.CreatedAt = classParticipantModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classParticipantDTO.User.Metadata.UpdatedAt = classParticipantModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
-	classParticipantDTO.CreatedAt = classParticipantModel.Metadata.CreatedAt.Format(datetimeFormat)
-	classParticipantDTO.UpdatedAt = classParticipantModel.Metadata.UpdatedAt.Format(datetimeFormat)
+	classParticipantDTO.Metadata.CreatedAt = classParticipantModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classParticipantDTO.Metadata.UpdatedAt = classParticipantModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
 	return classParticipantDTO, nil
 }

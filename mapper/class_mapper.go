@@ -37,8 +37,8 @@ func ToClassModel(dto dto.ClassDTO) (models.Class, error) {
 	classModel.ID = uint(dto.ID)
 	classModel.Name = dto.Name
 
-	if dto.ClassCategoryID != 0 {
-		classModel.ClassCategoryID = uint(dto.ClassCategoryID)
+	if dto.ClassCategory.ID != 0 {
+		classModel.ClassCategoryID = uint(dto.ClassCategory.ID)
 	}
 
 	classModel.Description = dto.Description
@@ -54,8 +54,8 @@ func ToClassModel(dto dto.ClassDTO) (models.Class, error) {
 		classModel.Start = parsedStrToTime
 	}
 
-	if dto.InstructorID != 0 {
-		classModel.InstructorID = uint(dto.InstructorID)
+	if dto.Instructor.ID != 0 {
+		classModel.InstructorID = uint(dto.Instructor.ID)
 	}
 
 	return classModel, nil
@@ -75,26 +75,24 @@ func ToClassDTO(classModel models.Class) (dto.ClassDTO, error) {
 	classDTO.ID = int(classModel.ID)
 	classDTO.Name = classModel.Name
 
-	classDTO.ClassCategoryID = int(classModel.ClassCategoryID)
 	classDTO.ClassCategory.ID = int(classModel.ClassCategory.ID)
 	classDTO.ClassCategory.Name = classModel.ClassCategory.Name
 	classDTO.ClassCategory.Description = classModel.ClassCategory.Description
-	classDTO.ClassCategory.CreatedAt = classModel.Metadata.CreatedAt.Format(datetimeFormat)
-	classDTO.ClassCategory.UpdatedAt = classModel.Metadata.UpdatedAt.Format(datetimeFormat)
+	classDTO.ClassCategory.Metadata.CreatedAt = classModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classDTO.ClassCategory.Metadata.UpdatedAt = classModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
 	classDTO.Description = classModel.Description
 	classDTO.Start = classModel.Start.Format(datetimeFormat)
 
-	classDTO.InstructorID = int(classModel.InstructorID)
 	classDTO.Instructor.ID = int(classModel.Instructor.ID)
 	classDTO.Instructor.Name = classModel.Instructor.Name
 	classDTO.Instructor.Gender = classModel.Instructor.Gender
 	classDTO.Instructor.Phone = instructorPhoneInt
-	classDTO.Instructor.CreatedAt = classModel.Metadata.CreatedAt.Format(datetimeFormat)
-	classDTO.Instructor.UpdatedAt = classModel.Metadata.UpdatedAt.Format(datetimeFormat)
+	classDTO.Instructor.Metadata.CreatedAt = classModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classDTO.Instructor.Metadata.UpdatedAt = classModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
-	classDTO.CreatedAt = classModel.Metadata.CreatedAt.Format(datetimeFormat)
-	classDTO.UpdatedAt = classModel.Metadata.UpdatedAt.Format(datetimeFormat)
+	classDTO.Metadata.CreatedAt = classModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classDTO.Metadata.UpdatedAt = classModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
 	return classDTO, nil
 }

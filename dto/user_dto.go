@@ -6,5 +6,5 @@ type UserDTO struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 	Birthday string `json:"birthday"`
-	MetadataDTO
+	Metadata MetadataDTO `json:"metadata"`
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"swim-class/dto"
+	"swim-class/middlewares"
 	"swim-class/services"
 
 	"github.com/labstack/echo/v4"
@@ -42,6 +43,14 @@ func (cpc *classParticipantController) GetAllClassParticipantsByUserID(c echo.Co
 			"error": "id parameter must be valid",
 		})
 	}
+
+	isSameUser := middlewares.IsSameUser(c, float64(userID))
+	if !isSameUser {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized - not the same user",
+		})
+	}
+
 	classParticipants, err := cpc.classParticipantService.GetAllClassParticipantsByUserIDService(userID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
@@ -92,6 +101,14 @@ func (cpc *classParticipantController) CreateClassParticipant(c echo.Context) er
 		})
 	}
 
+	userID := classParticipantDTO.User.ID
+	isSameUser := middlewares.IsSameUser(c, float64(userID))
+	if !isSameUser {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized - not the same user",
+		})
+	}
+
 	classParticipantDTO, err := cpc.classParticipantService.CreateClassParticipantService(classParticipantDTO)
 	if err != nil {
 		if err.Error() == "record not found" {
@@ -116,6 +133,13 @@ func (cpc *classParticipantController) EditClassParticipant(c echo.Context) erro
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "id parameter must be valid",
+		})
+	}
+
+	isSameUser := middlewares.IsSameUser(c, float64(classParticipantID))
+	if !isSameUser {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized - not the same user",
 		})
 	}
 
@@ -151,6 +175,13 @@ func (cpc *classParticipantController) DeleteClassParticipant(c echo.Context) er
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "id parameter must be valid",
+		})
+	}
+
+	isSameUser := middlewares.IsSameUser(c, float64(classParticipantID))
+	if !isSameUser {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized - not the same user",
 		})
 	}
 

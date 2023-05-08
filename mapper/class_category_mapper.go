@@ -50,8 +50,8 @@ func ToClassCategoryDTO(classCategoryModel models.ClassCategory) (dto.ClassCateg
 	classDTO.ID = int(classCategoryModel.ID)
 	classDTO.Name = classCategoryModel.Name
 	classDTO.Description = classCategoryModel.Description
-	classDTO.CreatedAt = classCategoryModel.Metadata.CreatedAt.Format(datetimeFormat)
-	classDTO.UpdatedAt = classCategoryModel.Metadata.UpdatedAt.Format(datetimeFormat)
+	classDTO.Metadata.CreatedAt = classCategoryModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classDTO.Metadata.UpdatedAt = classCategoryModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
 	return classDTO, nil
 }

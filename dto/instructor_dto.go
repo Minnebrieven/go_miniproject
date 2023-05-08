@@ -5,5 +5,5 @@ type InstructorDTO struct {
 	Name   string `json:"name"`
 	Gender string `json:"gender"`
 	Phone  string `json:"phone"`
-	MetadataDTO
+	Metadata MetadataDTO `json:"metadata"`
 }

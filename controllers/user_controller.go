@@ -150,6 +150,13 @@ func (u *userController) DeleteUser(c echo.Context) error {
 		})
 	}
 
+	isSameUser := middlewares.IsSameUser(c, float64(userID))
+	if !isSameUser {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized - not the same user",
+		})
+	}
+
 	err = u.userService.DeleteUserService(userID)
 	if err != nil {
 		if err.Error() == "record not found" {

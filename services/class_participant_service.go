@@ -110,14 +110,14 @@ func (cps *classParticipantService) EditClassParticipantService(classParticipant
 		return modifiedClassData, err
 	}
 
-	if modifiedClassData.ClassID != int(classParticipantModel.ClassID) {
-		classParticipantModel.Class, err = cps.classRepository.GetClass(models.Class{ID: uint(modifiedClassData.ClassID)})
+	if modifiedClassData.Class.ID != int(classParticipantModel.ClassID) {
+		classParticipantModel.Class, err = cps.classRepository.GetClass(models.Class{ID: uint(modifiedClassData.Class.ID)})
 		if err != nil {
 			return modifiedClassData, err
 		}
 	}
-	if modifiedClassData.UserID != int(classParticipantModel.UserID) {
-		classParticipantModel.User, err = cps.userRepository.GetUser(models.User{ID: uint(modifiedClassData.UserID)})
+	if modifiedClassData.User.ID != int(classParticipantModel.UserID) {
+		classParticipantModel.User, err = cps.userRepository.GetUser(models.User{ID: uint(modifiedClassData.User.ID)})
 		if err != nil {
 			return modifiedClassData, err
 		}

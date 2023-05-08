@@ -41,7 +41,6 @@ func (cs *classService) GetAllClassesService() ([]dto.ClassDTO, error) {
 	return ClassDTOList, nil
 }
 
-
 func (cs *classService) GetClassService(classDTO dto.ClassDTO) (dto.ClassDTO, error) {
 	classModel, err := mapper.ToClassModel(classDTO)
 	if err != nil {
@@ -98,14 +97,14 @@ func (cs *classService) EditClassService(classID int, modifiedClassData dto.Clas
 		return modifiedClassData, err
 	}
 
-	if modifiedClassData.ClassCategoryID != int(classModel.ClassCategoryID) {
-		classModel.ClassCategory, err = cs.classCategoryRepository.GetClassCategory(models.ClassCategory{ID: uint(modifiedClassData.ClassCategoryID)})
+	if modifiedClassData.ClassCategory.ID != int(classModel.ClassCategoryID) {
+		classModel.ClassCategory, err = cs.classCategoryRepository.GetClassCategory(models.ClassCategory{ID: uint(modifiedClassData.ClassCategory.ID)})
 		if err != nil {
 			return modifiedClassData, err
 		}
 	}
-	if modifiedClassData.InstructorID != int(classModel.InstructorID) {
-		classModel.Instructor, err = cs.instructorRepository.GetInstructor(models.Instructor{ID: uint(modifiedClassData.InstructorID)})
+	if modifiedClassData.Instructor.ID != int(classModel.InstructorID) {
+		classModel.Instructor, err = cs.instructorRepository.GetInstructor(models.Instructor{ID: uint(modifiedClassData.Instructor.ID)})
 		if err != nil {
 			return modifiedClassData, err
 		}

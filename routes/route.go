@@ -40,7 +40,7 @@ func NewRoute(db *gorm.DB) *echo.Echo {
 	//Log
 	m.LogMiddleware(e)
 
-	//ROUTES
+	//=======================ROUTES=====================================
 
 	//------------------NOT AUTHENTICATED--------------------------------
 	//USERS ROUTES

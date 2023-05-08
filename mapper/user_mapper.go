@@ -65,8 +65,8 @@ func ToUserDTO(userModel models.User) (dto.UserDTO, error) {
 	userDTO.Email = userModel.Email
 	userDTO.Password = "********"
 	userDTO.Birthday = userModel.Birthday.Format(dateFormat)
-	userDTO.CreatedAt = userModel.CreatedAt.Format(datetimeFormat)
-	userDTO.UpdatedAt = userModel.UpdatedAt.Format(datetimeFormat)
+	userDTO.CreatedAt = userModel.Metadata.CreatedAt.Format(datetimeFormat)
+	userDTO.UpdatedAt = userModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
 	return userDTO, nil
 }

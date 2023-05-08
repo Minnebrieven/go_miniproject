@@ -1,11 +1,10 @@
 package models
 
-import "time"
-
 type ClassParticipant struct {
-	ID        uint
-	ClassID   uint
-	UserID    uint
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID       uint
+	ClassID  uint `gorm:"column:class_id;"`
+	Class    Class
+	UserID   uint `gorm:"column:user_id;"`
+	User     User
+	Metadata Metadata `gorm:"embedded"`
 }

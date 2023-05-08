@@ -5,6 +5,6 @@ type InstructorDTO struct {
 	Name      string `json:"name"`
 	Gender    string `json:"gender"`
 	Phone     string `json:"phone"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	CreatedAt string `json:"-"`
+	UpdatedAt string `json:"-"`
 }

@@ -149,7 +149,7 @@ func (us *userService) Login(userDTO dto.UserDTO) (dto.UserDTO, string, error) {
 		return userDTO, "", err
 	}
 
-	token, err := middlewares.CreateToken(int(user.ID), user.Email)
+	token, err := middlewares.CreateToken(int(user.ID), user.Email, user.IsAdmin)
 	if err != nil {
 		return userDTO, "", err
 	}

@@ -2,9 +2,12 @@ package configs
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"swim-class/models"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -12,22 +15,27 @@ import (
 
 type Config struct {
 	DB_Host     string
-	DB_Port     int
+	DB_Port     string
 	DB_Name     string
 	DB_Username string
 	DB_Password string
 }
 
 func ConnectDB() (*gorm.DB, error) {
-	config := Config{
-		DB_Host:     "localhost",
-		DB_Port:     3306,
-		DB_Name:     "swim_class",
-		DB_Username: "root",
-		DB_Password: "",
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalln(err)
 	}
 
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
+	config := Config{
+		DB_Host:     os.Getenv("DB_HOST"),
+		DB_Port:     os.Getenv("DB_PORT"),
+		DB_Name:     os.Getenv("DB_NAME"),
+		DB_Username: os.Getenv("DB_USERNAME"),
+		DB_Password: "", //os.Getenv("DB_PASSWORD")
+	}
+
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		config.DB_Username,
 		config.DB_Password,
 		config.DB_Host,

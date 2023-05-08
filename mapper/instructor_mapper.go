@@ -63,8 +63,8 @@ func ToInstructorDTO(instructorModel models.Instructor) (dto.InstructorDTO, erro
 	instructorDTO.Name = instructorModel.Name
 	instructorDTO.Gender = instructorModel.Gender
 	instructorDTO.Phone = phoneIntToStr
-	instructorDTO.CreatedAt = instructorModel.CreatedAt.Format(datetimeFormat)
-	instructorDTO.UpdatedAt = instructorModel.UpdatedAt.Format(datetimeFormat)
+	instructorDTO.CreatedAt = instructorModel.Metadata.CreatedAt.Format(datetimeFormat)
+	instructorDTO.UpdatedAt = instructorModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
 	return instructorDTO, nil
 }

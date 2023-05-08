@@ -10,21 +10,21 @@ import (
 // from []Model to []DTO
 func ToClassDTOList(classModelList []models.Class) ([]dto.ClassDTO, error) {
 	var err error
-	userListDTO := make([]dto.ClassDTO, len(classModelList))
+	classListDTO := make([]dto.ClassDTO, len(classModelList))
 
 	for i, itm := range classModelList {
-		userListDTO[i], err = ToClassDTO(itm)
+		classListDTO[i], err = ToClassDTO(itm)
 	}
 
-	return userListDTO, err
+	return classListDTO, err
 }
 
 // from []DTO to []Model
-func ToClassModelList(ClassDTOList []dto.ClassDTO) ([]models.Class, error) {
+func ToClassModelList(classDTOList []dto.ClassDTO) ([]models.Class, error) {
 	var err error
-	classModelList := make([]models.Class, len(ClassDTOList))
+	classModelList := make([]models.Class, len(classDTOList))
 
-	for i, itm := range ClassDTOList {
+	for i, itm := range classDTOList {
 		classModelList[i], err = ToClassModel(itm)
 	}
 	return classModelList, err
@@ -37,12 +37,8 @@ func ToClassModel(dto dto.ClassDTO) (models.Class, error) {
 	classModel.ID = uint(dto.ID)
 	classModel.Name = dto.Name
 
-	if dto.ClassCategoryID != "" {
-		classCategoryIDString, err := strconv.Atoi(dto.ClassCategoryID)
-		if err != nil {
-			return classModel, err
-		}
-		classModel.ClassCategoryID = uint(classCategoryIDString)
+	if dto.ClassCategoryID != 0 {
+		classModel.ClassCategoryID = uint(dto.ClassCategoryID)
 	}
 
 	classModel.Description = dto.Description
@@ -58,12 +54,8 @@ func ToClassModel(dto dto.ClassDTO) (models.Class, error) {
 		classModel.Start = parsedStrToTime
 	}
 
-	if dto.InstructorID != "" {
-		instructorIDString, err := strconv.Atoi(dto.InstructorID)
-		if err != nil {
-			return classModel, err
-		}
-		classModel.InstructorID = uint(instructorIDString)
+	if dto.InstructorID != 0 {
+		classModel.InstructorID = uint(dto.InstructorID)
 	}
 
 	return classModel, nil
@@ -78,17 +70,31 @@ func ToClassDTO(classModel models.Class) (dto.ClassDTO, error) {
 	datetimeFormat := "2006-01-02 15:04:05"
 
 	// int to string
-	classCategoryIDInt := strconv.Itoa(int(classModel.ClassCategoryID))
-	instructorIDInt := strconv.Itoa(int(classModel.InstructorID))
+	instructorPhoneInt := strconv.Itoa(int(classModel.Instructor.Phone))
 
 	classDTO.ID = int(classModel.ID)
 	classDTO.Name = classModel.Name
-	classDTO.ClassCategoryID = classCategoryIDInt
+
+	classDTO.ClassCategoryID = int(classModel.ClassCategoryID)
+	classDTO.ClassCategory.ID = int(classModel.ClassCategory.ID)
+	classDTO.ClassCategory.Name = classModel.ClassCategory.Name
+	classDTO.ClassCategory.Description = classModel.ClassCategory.Description
+	classDTO.ClassCategory.CreatedAt = classModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classDTO.ClassCategory.UpdatedAt = classModel.Metadata.UpdatedAt.Format(datetimeFormat)
+
 	classDTO.Description = classModel.Description
 	classDTO.Start = classModel.Start.Format(datetimeFormat)
-	classDTO.InstructorID = instructorIDInt
-	classDTO.CreatedAt = classModel.CreatedAt.Format(datetimeFormat)
-	classDTO.UpdatedAt = classModel.UpdatedAt.Format(datetimeFormat)
+
+	classDTO.InstructorID = int(classModel.InstructorID)
+	classDTO.Instructor.ID = int(classModel.Instructor.ID)
+	classDTO.Instructor.Name = classModel.Instructor.Name
+	classDTO.Instructor.Gender = classModel.Instructor.Gender
+	classDTO.Instructor.Phone = instructorPhoneInt
+	classDTO.Instructor.CreatedAt = classModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classDTO.Instructor.UpdatedAt = classModel.Metadata.UpdatedAt.Format(datetimeFormat)
+
+	classDTO.CreatedAt = classModel.Metadata.CreatedAt.Format(datetimeFormat)
+	classDTO.UpdatedAt = classModel.Metadata.UpdatedAt.Format(datetimeFormat)
 
 	return classDTO, nil
 }

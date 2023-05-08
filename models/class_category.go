@@ -1,12 +1,9 @@
 package models
 
-import "time"
-
 type ClassCategory struct {
-	ID          uint
+	ID          uint `gorm:"column:id;"`
 	Name        string
 	Description string
-	Classes     []Class
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	Classes     []Class  `gorm:"foreignKey:id;"`
+	Metadata    Metadata `gorm:"embedded"`
 }

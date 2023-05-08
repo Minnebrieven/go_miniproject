@@ -1,13 +1,10 @@
 package models
 
-import "time"
-
 type Instructor struct {
-	ID        uint
-	Name      string
-	Gender    string
-	Phone     int
-	Classes   []Class
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID       uint `gorm:"column:id;"`
+	Name     string
+	Gender   string
+	Phone    int
+	Classes  []Class  `gorm:"foreignKey:id;"`
+	Metadata Metadata `gorm:"embedded"`
 }

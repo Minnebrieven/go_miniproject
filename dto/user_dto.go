@@ -6,6 +6,6 @@ type UserDTO struct {
 	Email     string `json:"email"`
 	Password  string `json:"password"`
 	Birthday  string `json:"birthday"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	CreatedAt string `json:"-"`
+	UpdatedAt string `json:"-"`
 }

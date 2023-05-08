@@ -52,6 +52,10 @@ func (cr *classCategoryRepository) UpdateClassCategory(classCategoryData models.
 }
 
 func (cr *classCategoryRepository) DeleteClassCategory(classCategoryData models.ClassCategory) error {
-	err := cr.db.Delete(&classCategoryData).Error
+	err := cr.db.First(&classCategoryData).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("record not found")
+	}
+	err = cr.db.Delete(&classCategoryData).Error
 	return err
 }

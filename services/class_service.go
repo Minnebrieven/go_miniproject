@@ -18,12 +18,14 @@ type (
 	}
 
 	classService struct {
-		classRepository repositories.ClassRepository
+		classRepository         repositories.ClassRepository
+		classCategoryRepository repositories.ClassCategoryRepository
+		instructorRepository    repositories.InstructorRepository
 	}
 )
 
-func NewClassService(classRepo repositories.ClassRepository) *classService {
-	return &classService{classRepository: classRepo}
+func NewClassService(classRepo repositories.ClassRepository, classCategoryRepo repositories.ClassCategoryRepository, instructorRepo repositories.InstructorRepository) *classService {
+	return &classService{classRepository: classRepo, classCategoryRepository: classCategoryRepo, instructorRepository: instructorRepo}
 }
 
 func (cs *classService) GetAllClassesService() ([]dto.ClassDTO, error) {
@@ -38,6 +40,7 @@ func (cs *classService) GetAllClassesService() ([]dto.ClassDTO, error) {
 	}
 	return ClassDTOList, nil
 }
+
 
 func (cs *classService) GetClassService(classDTO dto.ClassDTO) (dto.ClassDTO, error) {
 	classModel, err := mapper.ToClassModel(classDTO)
@@ -64,6 +67,16 @@ func (cs *classService) CreateClassService(classDTO dto.ClassDTO) (dto.ClassDTO,
 		return classDTO, err
 	}
 
+	classModel.ClassCategory, err = cs.classCategoryRepository.GetClassCategory(models.ClassCategory{ID: classModel.ClassCategoryID})
+	if err != nil {
+		return classDTO, err
+	}
+
+	classModel.Instructor, err = cs.instructorRepository.GetInstructor(models.Instructor{ID: classModel.InstructorID})
+	if err != nil {
+		return classDTO, err
+	}
+
 	classModel, err = cs.classRepository.CreateClass(classModel)
 	if err != nil {
 		return classDTO, err
@@ -85,6 +98,19 @@ func (cs *classService) EditClassService(classID int, modifiedClassData dto.Clas
 		return modifiedClassData, err
 	}
 
+	if modifiedClassData.ClassCategoryID != int(classModel.ClassCategoryID) {
+		classModel.ClassCategory, err = cs.classCategoryRepository.GetClassCategory(models.ClassCategory{ID: uint(modifiedClassData.ClassCategoryID)})
+		if err != nil {
+			return modifiedClassData, err
+		}
+	}
+	if modifiedClassData.InstructorID != int(classModel.InstructorID) {
+		classModel.Instructor, err = cs.instructorRepository.GetInstructor(models.Instructor{ID: uint(modifiedClassData.InstructorID)})
+		if err != nil {
+			return modifiedClassData, err
+		}
+	}
+
 	modifiedClassModel, err := mapper.ToClassModel(modifiedClassData)
 	if err != nil {
 		return modifiedClassData, err
@@ -101,6 +127,10 @@ func (cs *classService) EditClassService(classID int, modifiedClassData dto.Clas
 		//skip ID, CreatedAt, UpdatedAt field to be edited
 		switch classType.Field(i).Name {
 		case "ID":
+			continue
+		case "ClassCategory":
+			continue
+		case "Instructor":
 			continue
 		case "CreatedAt":
 			continue

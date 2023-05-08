@@ -5,12 +5,12 @@ import (
 )
 
 type User struct {
-	ID                uint      `json:"id"`
-	Name              string    `json:"name"`
-	Email             string    `json:"email"`
-	Password          string    `json:"password"`
-	Birthday          time.Time `json:"birthday"`
-	ClassParticipants []ClassParticipant
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+	ID                uint `gorm:"column:id;"`
+	Name              string
+	Email             string `gorm:"unique"`
+	Password          string
+	Birthday          time.Time
+	ClassParticipants []ClassParticipant `gorm:"foreignKey:id;"`
+	IsAdmin           bool               `gorm:"default:false;"`
+	Metadata          Metadata           `gorm:"embedded"`
 }

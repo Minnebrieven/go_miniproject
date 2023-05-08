@@ -25,7 +25,7 @@ func NewClassRepository(db *gorm.DB) *classRepository {
 
 func (cr *classRepository) GetAllClasses() ([]models.Class, error) {
 	classes := []models.Class{}
-	err := cr.db.Find(&classes).Error
+	err := cr.db.Preload("ClassCategory").Preload("Instructor").Find(&classes).Error
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (cr *classRepository) GetAllClasses() ([]models.Class, error) {
 }
 
 func (cr *classRepository) GetClass(class models.Class) (models.Class, error) {
-	err := cr.db.First(&class).Error
+	err := cr.db.Preload("ClassCategory").Preload("Instructor").Find(&class).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return class, errors.New("record not found")
 	}
@@ -52,6 +52,10 @@ func (cr *classRepository) UpdateClass(classData models.Class) (models.Class, er
 }
 
 func (cr *classRepository) DeleteClass(classData models.Class) error {
-	err := cr.db.Delete(&classData).Error
+	err := cr.db.First(&classData).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("record not found")
+	}
+	err = cr.db.Delete(&classData).Error
 	return err
 }

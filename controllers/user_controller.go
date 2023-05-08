@@ -80,7 +80,7 @@ func (u *userController) CreateUser(c echo.Context) error {
 		})
 	}
 
-	token, err := middlewares.CreateToken(userDTO.ID, userDTO.Email)
+	token, err := middlewares.CreateToken(userDTO.ID, userDTO.Email, false)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": err.Error(),
@@ -99,6 +99,13 @@ func (u *userController) EditUser(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"error": "id parameter must be valid",
+		})
+	}
+
+	isSameUser := middlewares.IsSameUser(c, float64(userID))
+	if !isSameUser {
+		return c.JSON(http.StatusUnauthorized, echo.Map{
+			"error": "unauthorized - not the same user to edit",
 		})
 	}
 

@@ -9,6 +9,5 @@ type ClassDTO struct {
 	Start           string           `json:"start"`
 	InstructorID    int              `json:"instructor_id"`
 	Instructor      InstructorDTO    `json:"instructor"`
-	CreatedAt       string           `json:"-"`
-	UpdatedAt       string           `json:"-"`
+	MetadataDTO
 }

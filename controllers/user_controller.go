@@ -75,9 +75,15 @@ func (u *userController) CreateUser(c echo.Context) error {
 
 	userDTO, err := u.userService.CreateUserService(userDTO)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, echo.Map{
-			"error": err.Error(),
-		})
+		if err.Error() == "duplicate key found" {
+			return c.JSON(http.StatusConflict, echo.Map{
+				"error": err.Error(),
+			})
+		} else {
+			return c.JSON(http.StatusInternalServerError, echo.Map{
+				"error": err.Error(),
+			})
+		}
 	}
 
 	token, err := middlewares.CreateToken(userDTO.ID, userDTO.Email, false)

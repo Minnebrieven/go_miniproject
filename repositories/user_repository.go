@@ -4,6 +4,7 @@ import (
 	"errors"
 	"swim-class/models"
 
+	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -15,6 +16,8 @@ type UserRepository interface {
 	DeleteUser(models.User) error
 	Login(models.User) (models.User, error)
 }
+
+var mysqlErr *mysql.MySQLError
 
 type userRepository struct {
 	db *gorm.DB
@@ -44,6 +47,9 @@ func (ur *userRepository) GetUser(user models.User) (models.User, error) {
 
 func (ur *userRepository) CreateUser(userData models.User) (models.User, error) {
 	err := ur.db.Create(&userData).Error
+	if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
+		return userData, errors.New("duplicate key found")
+	}
 	return userData, err
 }
 

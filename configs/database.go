@@ -13,21 +13,13 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-type Config struct {
-	DB_Host     string
-	DB_Port     string
-	DB_Name     string
-	DB_Username string
-	DB_Password string
-}
-
 func ConnectDB() (*gorm.DB, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	config := Config{
+	config := models.Config{
 		DB_Host:     os.Getenv("DB_HOST"),
 		DB_Port:     os.Getenv("DB_PORT"),
 		DB_Name:     os.Getenv("DB_NAME"),

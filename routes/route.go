@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"swim-class/constants"
+	"os"
 	"swim-class/controllers"
 	m "swim-class/middlewares"
 	"swim-class/repositories"
@@ -11,7 +11,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
-
 
 func NewRoute(db *gorm.DB) *echo.Echo {
 	//echo instance
@@ -63,7 +62,7 @@ func NewRoute(db *gorm.DB) *echo.Echo {
 	//------------------AUTHENTICATED------------------------------------
 	//USERS ROUTES
 	usersJWT := e.Group("/users")
-	usersJWT.Use(mid.JWT([]byte(constants.SECRET_JWT)))
+	usersJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))))
 	usersJWT.GET("", userController.GetAllUsers, m.IsAdmin)
 	usersJWT.GET("/:id", userController.GetUserByID)
 	usersJWT.PUT("/:id", userController.EditUser)
@@ -71,28 +70,28 @@ func NewRoute(db *gorm.DB) *echo.Echo {
 
 	//INSTRUCTORS ROUTES
 	instructorsJWT := e.Group("/instructors")
-	instructorsJWT.Use(mid.JWT([]byte(constants.SECRET_JWT)), m.IsAdmin)
+	instructorsJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))), m.IsAdmin)
 	instructorsJWT.POST("", instructorController.CreateInstructor)
 	instructorsJWT.PUT("/:id", instructorController.EditInstrutor)
 	instructorsJWT.DELETE("/:id", instructorController.DeleteInstructor)
 
 	//CLASSES ROUTES
 	classesJWT := e.Group("/classes")
-	classesJWT.Use(mid.JWT([]byte(constants.SECRET_JWT)), m.IsAdmin)
+	classesJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))), m.IsAdmin)
 	classesJWT.POST("", classController.CreateClass)
 	classesJWT.PUT("/:id", classController.EditClass)
 	classesJWT.DELETE("/:id", classController.DeleteClass)
 
 	//CLASS CATEGORY ROUTES
 	categoryJWT := e.Group("/category")
-	categoryJWT.Use(mid.JWT([]byte(constants.SECRET_JWT)), m.IsAdmin)
+	categoryJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))), m.IsAdmin)
 	categoryJWT.POST("", classCategoryController.CreateClassCategory)
 	categoryJWT.PUT("/:id", classCategoryController.EditClassCategory)
 	categoryJWT.DELETE("/:id", classCategoryController.DeleteClassCategory)
 
 	// CLASS PARTICIPANT ROUTES
 	participantJWT := e.Group("/participants")
-	participantJWT.Use(mid.JWT([]byte(constants.SECRET_JWT)))
+	participantJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))))
 	participantJWT.GET("/all", classParticipantController.GetAllClassParticipants)
 	participantJWT.GET("/myclass/:user", classParticipantController.GetAllClassParticipantsByUserID)
 	participantJWT.GET("/:id", classParticipantController.GetClassParticipantByID)

@@ -5,6 +5,7 @@ volumes:
 services:
   mysqldb:
     image: mysql:latest
+    container_name: swim-class-mysql
     restart: always
     environment:
       MYSQL_DATABASE: swim_class
@@ -12,7 +13,7 @@ services:
       MYSQL_PASSWORD: 12345678
       MYSQL_ROOT_PASSWORD: 12345678
     ports:
-      - "33066:3306"
+      - "3306:3306"
     volumes:
       - db:/var/lib/mysql
 
@@ -20,6 +21,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+    container_name: swim-class-app
     ports:
       - "8000:8000"
     restart: always

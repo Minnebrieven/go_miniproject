@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
+	configs.LoadConfig()
+
 	db, err := configs.ConnectDB()
 	if err != nil {
 		panic(err)

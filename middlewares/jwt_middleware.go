@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"os"
+	"swim-class/configs"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -16,7 +16,7 @@ func CreateToken(userID int, email string, isAdmin bool) (string, error) {
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv("JWT_KEY")))
+	return token.SignedString([]byte(configs.AppConfig.JWTKey))
 }
 
 func IsAdmin(next echo.HandlerFunc) echo.HandlerFunc {

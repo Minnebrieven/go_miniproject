@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"swim-class/helpers"
 	"swim-class/models"
 
 	"github.com/go-sql-driver/mysql"
@@ -46,7 +47,14 @@ func (ur *userRepository) GetUser(user models.User) (models.User, error) {
 }
 
 func (ur *userRepository) CreateUser(userData models.User) (models.User, error) {
-	err := ur.db.Create(&userData).Error
+	//hashing password
+	hashedPassword, err := helpers.HashPassword(userData.Password)
+	if err != nil {
+		return userData, err
+	}
+	userData.Password = hashedPassword
+
+	err = ur.db.Create(&userData).Error
 	if errors.As(err, &mysqlErr) && mysqlErr.Number == 1062 {
 		return userData, errors.New("duplicate key found")
 	}
@@ -68,6 +76,15 @@ func (ur *userRepository) DeleteUser(userData models.User) error {
 }
 
 func (ur *userRepository) Login(user models.User) (models.User, error) {
-	err := ur.db.Where("email = ? AND password = ?", user.Email, user.Password).First(&user).Error
+	userPassword := user.Password
+	err := ur.db.Where("email = ?", user.Email).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+
+	isMatch := helpers.MatchingPasswordHash(userPassword, user.Password)
+	if !isMatch {
+		return models.User{}, errors.New("login failed")
+	}
 	return user, err
 }

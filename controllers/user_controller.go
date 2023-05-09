@@ -186,9 +186,15 @@ func (u *userController) Login(c echo.Context) error {
 
 	user, token, err := u.userService.Login(user)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"error": err.Error(),
-		})
+		if err.Error() == "login failed" {
+			return c.JSON(http.StatusUnauthorized, echo.Map{
+				"error": err.Error(),
+			})
+		} else {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"error": err.Error(),
+			})
+		}
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{

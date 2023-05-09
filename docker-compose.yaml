@@ -1,0 +1,28 @@
+version: '3.9'
+volumes:
+  db:
+    driver: local
+services:
+  mysqldb:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: swim_class
+      MYSQL_USER: fikri1711
+      MYSQL_PASSWORD: 12345678
+      MYSQL_ROOT_PASSWORD: 12345678
+    ports:
+      - "33066:3306"
+    volumes:
+      - db:/var/lib/mysql
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: always
+    volumes:
+      - ./:/rest-api
+      

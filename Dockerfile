@@ -1,7 +1,16 @@
 FROM golang:1.20-alpine
 
-RUN mkdir /app
+WORKDIR /app
+
+COPY go.mod go.sum
+RUN go mod download
 
 COPY . /app
 
-WORKDIR /app
+RUN go build -o main .
+
+ENV PORT=8000
+
+EXPOSE 8000
+
+CMD [ "./main" ]

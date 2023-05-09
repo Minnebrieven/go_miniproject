@@ -24,7 +24,7 @@ func ConnectDB() (*gorm.DB, error) {
 		DB_Port:     os.Getenv("DB_PORT"),
 		DB_Name:     os.Getenv("DB_NAME"),
 		DB_Username: os.Getenv("DB_USERNAME"),
-		DB_Password: "", //os.Getenv("DB_PASSWORD")
+		DB_Password: os.Getenv("DB_PASSWORD"),
 	}
 
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
@@ -42,9 +42,9 @@ func ConnectDB() (*gorm.DB, error) {
 func MigrateDB(db *gorm.DB) error {
 	return db.AutoMigrate(
 		models.User{},
-		models.Class{},
 		models.Instructor{},
 		models.ClassCategory{},
+		models.Class{},
 		models.ClassParticipant{},
 	)
 }

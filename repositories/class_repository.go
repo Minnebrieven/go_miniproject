@@ -11,6 +11,7 @@ import (
 type ClassRepository interface {
 	GetAvailableClasses() ([]models.Class, error)
 	GetAllClasses() ([]models.Class, error)
+	GetClassesByName(className string) ([]models.Class, error)
 	GetClass(models.Class) (models.Class, error)
 	CreateClass(models.Class) (models.Class, error)
 	UpdateClass(models.Class) (models.Class, error)
@@ -39,6 +40,17 @@ func (cr *classRepository) GetAvailableClasses() ([]models.Class, error) {
 func (cr *classRepository) GetAllClasses() ([]models.Class, error) {
 	classes := []models.Class{}
 	err := cr.db.Preload("ClassCategory").Preload("Instructor").Find(&classes).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return classes, nil
+}
+
+func (cr *classRepository) GetClassesByName(className string) ([]models.Class, error) {
+	classes := []models.Class{}
+	currentTime := time.Now()
+	err := cr.db.Where("name LIKE ? AND start > ? ", className, currentTime).Preload("ClassCategory").Preload("Instructor").Find(&classes).Error
 	if err != nil {
 		return nil, err
 	}

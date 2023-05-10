@@ -22,7 +22,8 @@ func NewClassController(classServ services.ClassService) *classController {
 }
 
 func (cl *classController) GetAvailableClasses(c echo.Context) error {
-	classes, err := cl.classService.GetAvailableClasses()
+	className := c.QueryParam("classname")
+	classes, err := cl.classService.GetAvailableClassesService(className)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{
 			"error": err.Error(),

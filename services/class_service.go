@@ -10,7 +10,7 @@ import (
 
 type (
 	ClassService interface {
-		GetAvailableClasses() ([]dto.ClassDTO, error)
+		GetAvailableClassesService(className string) ([]dto.ClassDTO, error)
 		GetAllClassesService() ([]dto.ClassDTO, error)
 		GetClassService(ClassDTO dto.ClassDTO) (dto.ClassDTO, error)
 		CreateClassService(ClassDTO dto.ClassDTO) (dto.ClassDTO, error)
@@ -29,17 +29,31 @@ func NewClassService(classRepo repositories.ClassRepository, classCategoryRepo r
 	return &classService{classRepository: classRepo, classCategoryRepository: classCategoryRepo, instructorRepository: instructorRepo}
 }
 
-func (cs *classService) GetAvailableClasses() ([]dto.ClassDTO, error) {
-	class, err := cs.classRepository.GetAvailableClasses()
-	if err != nil {
-		return nil, err
-	}
+func (cs *classService) GetAvailableClassesService(className string) ([]dto.ClassDTO, error) {
+	if className != "" {
+		className = "%" + className + "%"
+		class, err := cs.classRepository.GetClassesByName(className)
+		if err != nil {
+			return nil, err
+		}
 
-	ClassDTOList, err := mapper.ToClassDTOList(class)
-	if err != nil {
-		return nil, err
+		ClassDTOList, err := mapper.ToClassDTOList(class)
+		if err != nil {
+			return nil, err
+		}
+		return ClassDTOList, nil
+	} else {
+		class, err := cs.classRepository.GetAvailableClasses()
+		if err != nil {
+			return nil, err
+		}
+
+		ClassDTOList, err := mapper.ToClassDTOList(class)
+		if err != nil {
+			return nil, err
+		}
+		return ClassDTOList, nil
 	}
-	return ClassDTOList, nil
 }
 
 func (cs *classService) GetAllClassesService() ([]dto.ClassDTO, error) {

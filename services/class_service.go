@@ -10,6 +10,7 @@ import (
 
 type (
 	ClassService interface {
+		GetAvailableClasses() ([]dto.ClassDTO, error)
 		GetAllClassesService() ([]dto.ClassDTO, error)
 		GetClassService(ClassDTO dto.ClassDTO) (dto.ClassDTO, error)
 		CreateClassService(ClassDTO dto.ClassDTO) (dto.ClassDTO, error)
@@ -26,6 +27,19 @@ type (
 
 func NewClassService(classRepo repositories.ClassRepository, classCategoryRepo repositories.ClassCategoryRepository, instructorRepo repositories.InstructorRepository) *classService {
 	return &classService{classRepository: classRepo, classCategoryRepository: classCategoryRepo, instructorRepository: instructorRepo}
+}
+
+func (cs *classService) GetAvailableClasses() ([]dto.ClassDTO, error) {
+	class, err := cs.classRepository.GetAvailableClasses()
+	if err != nil {
+		return nil, err
+	}
+
+	ClassDTOList, err := mapper.ToClassDTOList(class)
+	if err != nil {
+		return nil, err
+	}
+	return ClassDTOList, nil
 }
 
 func (cs *classService) GetAllClassesService() ([]dto.ClassDTO, error) {

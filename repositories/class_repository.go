@@ -3,11 +3,13 @@ package repositories
 import (
 	"errors"
 	"swim-class/models"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 type ClassRepository interface {
+	GetAvailableClasses() ([]models.Class, error)
 	GetAllClasses() ([]models.Class, error)
 	GetClass(models.Class) (models.Class, error)
 	CreateClass(models.Class) (models.Class, error)
@@ -21,6 +23,17 @@ type classRepository struct {
 
 func NewClassRepository(db *gorm.DB) *classRepository {
 	return &classRepository{db}
+}
+
+func (cr *classRepository) GetAvailableClasses() ([]models.Class, error) {
+	classes := []models.Class{}
+	currentTime := time.Now()
+	err := cr.db.Where("start > ? ", currentTime).Preload("ClassCategory").Preload("Instructor").Find(&classes).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return classes, nil
 }
 
 func (cr *classRepository) GetAllClasses() ([]models.Class, error) {

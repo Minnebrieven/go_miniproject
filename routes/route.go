@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"os"
+	"swim-class/configs"
 	"swim-class/controllers"
 	m "swim-class/middlewares"
 	"swim-class/repositories"
@@ -15,6 +15,8 @@ import (
 func NewRoute(db *gorm.DB) *echo.Echo {
 	//echo instance
 	e := echo.New()
+
+	jwtKey := configs.AppConfig.JWTKey
 
 	//REPOSITORIES
 	userRepository := repositories.NewUserRepository(db)
@@ -56,13 +58,14 @@ func NewRoute(db *gorm.DB) *echo.Echo {
 	e.GET("/category/:id", classCategoryController.GetClassCategoryByID)
 
 	//CLASS ROUTES
+	e.GET("/classes/available", classController.GetAvailableClasses)
 	e.GET("/classes/all", classController.GetAllClasses)
 	e.GET("/classes/:id", classController.GetClassByID)
 
 	//------------------AUTHENTICATED------------------------------------
 	//USERS ROUTES
 	usersJWT := e.Group("/users")
-	usersJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))))
+	usersJWT.Use(mid.JWT([]byte(jwtKey)))
 	usersJWT.GET("", userController.GetAllUsers, m.IsAdmin)
 	usersJWT.GET("/:id", userController.GetUserByID)
 	usersJWT.PUT("/:id", userController.EditUser)
@@ -70,33 +73,33 @@ func NewRoute(db *gorm.DB) *echo.Echo {
 
 	//INSTRUCTORS ROUTES
 	instructorsJWT := e.Group("/instructors")
-	instructorsJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))), m.IsAdmin)
+	instructorsJWT.Use(mid.JWT([]byte(jwtKey)), m.IsAdmin)
 	instructorsJWT.POST("", instructorController.CreateInstructor)
 	instructorsJWT.PUT("/:id", instructorController.EditInstrutor)
 	instructorsJWT.DELETE("/:id", instructorController.DeleteInstructor)
 
 	//CLASSES ROUTES
 	classesJWT := e.Group("/classes")
-	classesJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))), m.IsAdmin)
+	classesJWT.Use(mid.JWT([]byte(jwtKey)), m.IsAdmin)
 	classesJWT.POST("", classController.CreateClass)
 	classesJWT.PUT("/:id", classController.EditClass)
 	classesJWT.DELETE("/:id", classController.DeleteClass)
 
 	//CLASS CATEGORY ROUTES
 	categoryJWT := e.Group("/category")
-	categoryJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))), m.IsAdmin)
+	categoryJWT.Use(mid.JWT([]byte(jwtKey)), m.IsAdmin)
 	categoryJWT.POST("", classCategoryController.CreateClassCategory)
 	categoryJWT.PUT("/:id", classCategoryController.EditClassCategory)
 	categoryJWT.DELETE("/:id", classCategoryController.DeleteClassCategory)
 
 	// CLASS PARTICIPANT ROUTES
 	participantJWT := e.Group("/participants")
-	participantJWT.Use(mid.JWT([]byte(os.Getenv("JWT_KEY"))))
-	participantJWT.GET("/all", classParticipantController.GetAllClassParticipants)
+	participantJWT.Use(mid.JWT([]byte(jwtKey)))
+	participantJWT.GET("/all", classParticipantController.GetAllClassParticipants, m.IsAdmin)
 	participantJWT.GET("/myclass/:user", classParticipantController.GetAllClassParticipantsByUserID)
 	participantJWT.GET("/:id", classParticipantController.GetClassParticipantByID)
 	participantJWT.POST("", classParticipantController.CreateClassParticipant)
-	participantJWT.PUT("/:id", classParticipantController.EditClassParticipant)
+	participantJWT.PUT("/:id", classParticipantController.EditClassParticipant, m.IsAdmin)
 	participantJWT.DELETE("/:id", classParticipantController.DeleteClassParticipant)
 
 	return e

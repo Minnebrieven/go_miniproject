@@ -13,8 +13,8 @@ var (
 
 func LoadConfig() *models.Config {
 	viper.SetConfigType("env")
-	viper.SetConfigName("local")
-	//viper.SetConfigName("dev")
+	// viper.SetConfigName("local")
+	viper.SetConfigName("dev")
 	viper.AddConfigPath(".")
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -24,10 +24,6 @@ func LoadConfig() *models.Config {
 	err := viper.Unmarshal(&AppConfig)
 	if err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", err))
-	}
-
-	if AppConfig.DBPassword == "" {
-		
 	}
 
 	return &AppConfig

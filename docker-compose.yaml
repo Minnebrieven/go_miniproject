@@ -9,13 +9,13 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: swim_class
-      MYSQL_USER: fikri1711
-      MYSQL_PASSWORD: 12345678
-      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_ROOT_PASSWORD: fikri1711
     ports:
       - "3306:3306"
     volumes:
       - db:/var/lib/mysql
+    networks:
+      - gonet
 
   app:
     build: 
@@ -27,4 +27,9 @@ services:
     restart: always
     volumes:
       - ./:/rest-api
+    networks:
+      - gonet
       
+networks:
+  gonet:
+    driver: bridge

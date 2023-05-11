@@ -3,6 +3,7 @@ package services
 import (
 	"reflect"
 	"swim-class/dto"
+	"swim-class/helpers"
 	"swim-class/mapper"
 	"swim-class/middlewares"
 	"swim-class/models"
@@ -87,6 +88,12 @@ func (us *userService) EditUserService(userID int, modifiedUserData dto.UserDTO)
 		return modifiedUserData, err
 	}
 
+	if modifiedUserData.Password != "" {
+		modifiedUserData.Password, err = helpers.HashPassword(modifiedUserData.Password)
+		if err != nil {
+			return modifiedUserData, err
+		}
+	}
 	modifiedUserModel, err := mapper.ToUserModel(modifiedUserData)
 	if err != nil {
 		return modifiedUserData, err
